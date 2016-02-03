@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+
+
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	<context:component-scan base-package="com.view"/>
+	
+	<mvc:default-servlet-handler/>
+    <mvc:annotation-driven >
+		<mvc:message-converters register-defaults="true">
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper" ref="mvnObjectMapper" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+	
+	<bean id="mvnObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+        <property name="serializationInclusion">
+            <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+        </property>
+    </bean>
+	                
+	<bean id="mvcSerializationConfig" class="com.fasterxml.jackson.databind.SerializationConfig"
+    factory-bean="mvnObjectMapper" factory-method="getSerializationConfig" />
+	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	    <property name="targetObject" ref="mvcSerializationConfig" />
+	    <property name="targetMethod" value="without" />
+	    <property name="arguments">
+	        <list>
+	            <value type="com.fasterxml.jackson.databind.SerializationFeature">WRITE_NULL_MAP_VALUES</value>
+	        </list>
+	    </property>
+	</bean>
+	<mvc:annotation-driven>
+	    <mvc:message-converters register-defaults="true">
+	        <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+	            <property name="objectMapper" ref="mvnObjectMapper" />
+	        </bean>
+	    </mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>   
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+	
+	
+		<bean id="fmXmlEscape" class="freemarker.template.utility.XmlEscape" />
+	
+	<bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="defaultEncoding" value="UTF-8"/>
+	    <property name="templateLoaderPath" value="/WEB-INF/template"/>
+	    <property name="freemarkerVariables">
+		    <map>
+			    <entry key="xmlEscape" value-ref="fmXmlEscape"/>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+	    <property name="cache" value="true"/>
+	    <property name="prefix" value=""/>
+	    <property name="suffix" value=".ftl"/>
+		<property name="contentType" value="text/html;charset=UTF-8" />
+	</bean>
+	
+</beans>
