@@ -56,6 +56,5 @@ com_crashlytics_export_strings.xml
 .settings/
 .DS_Store
 nohup.out
-misc.prop
 tags
 *.bak

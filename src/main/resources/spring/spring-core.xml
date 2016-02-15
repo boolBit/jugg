@@ -8,47 +8,51 @@
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context.xsd">
 
-<!-- 启用注解 -->
-	<context:annotation-config />
+    <!-- 启用注解 -->
+    <context:annotation-config/>
 
-	<bean id="configProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="locations">
-			<list>
-				<value>classpath*:/conf/*.prop*</value>
-			</list>
-		</property>
-	</bean>
-	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
-		<property name="properties" ref="configProperties" />
-	</bean>
+    <bean id="configProperties"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath*:/conf/*.prop*</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="properties" ref="configProperties"/>
+    </bean>
 
-	<!-- 启动组件扫描，排除@Controller组件，该组件由SpringMVC配置文件扫描 -->
-	<context:component-scan base-package="com">
-		<context:exclude-filter type="annotation"
-			expression="org.springframework.stereotype.Controller" />
-		<context:exclude-filter type="annotation"
-			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
-	</context:component-scan>
+    <!-- 启动组件扫描，排除@Controller组件，该组件由SpringMVC配置文件扫描 -->
+    <context:component-scan base-package="com">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
 
 
-	<bean id="mvcObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
-		<property name="serializationInclusion">
-			<value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
-		</property>
-	</bean>
+    <bean id="mvcObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+        <property name="serializationInclusion">
+            <value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+        </property>
+    </bean>
 
-	<bean id="mvcSerializationConfig" class="com.fasterxml.jackson.databind.SerializationConfig"
-		  factory-bean="mvcObjectMapper" factory-method="getSerializationConfig" />
+    <bean id="mvcSerializationConfig" class="com.fasterxml.jackson.databind.SerializationConfig"
+          factory-bean="mvcObjectMapper" factory-method="getSerializationConfig"/>
 
-	<!--spring是有默认值得。貌似是class的驼峰命名 首字母小写 -->
-	<bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-		<property name="targetObject" ref="mvcSerializationConfig" />
-		<property name="targetMethod" value="without" />
-		<property name="arguments">
-			<list>
-				<value type="com.fasterxml.jackson.databind.SerializationFeature">WRITE_NULL_MAP_VALUES</value>
-			</list>
-		</property>
-	</bean>
+    <!--spring是有默认值得。貌似是class的驼峰命名 首字母小写 -->
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="mvcSerializationConfig"/>
+        <property name="targetMethod" value="without"/>
+        <property name="arguments">
+            <list>
+                <value type="com.fasterxml.jackson.databind.SerializationFeature">
+                    WRITE_NULL_MAP_VALUES
+                </value>
+            </list>
+        </property>
+    </bean>
 
 </beans>
