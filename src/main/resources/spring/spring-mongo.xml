@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/data/mongo
+            http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd
+            http://www.springframework.org/schema/util
+            http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+    <context:component-scan base-package="com.lorabit.model.mongo">
+        <context:exclude-filter type="annotation" expression="org.springframework.context.annotation.Configuration"/>
+    </context:component-scan>
+
+    <bean id="mongoWEB" name="mongoRs1" class="com.mongodb.Mongo" depends-on="mongopt" scope="singleton">
+        <constructor-arg name="seeds" >
+            <list>
+                <ref bean="webServerMaster"/>
+                <ref bean="webServerSlave"/>
+            </list>
+        </constructor-arg>
+        <constructor-arg name="options" ref="mongopt" />
+    </bean>
+
+    <bean id="webServerMaster" class="com.mongodb.ServerAddress" >
+        <constructor-arg name="host" value="${mongo.rs1.node1}"/>
+    </bean>
+
+    <bean id="webServerSlave" class="com.mongodb.ServerAddress" >
+        <constructor-arg name="host" value="${mongo.rs1.node2}"/>
+    </bean>
+
+    <bean id="mongopt" class="com.mongodb.MongoOptions">
+        <property name="connectionsPerHost" value="100"/>
+        <property name="threadsAllowedToBlockForConnectionMultiplier" value="10"/>
+        <property name="maxWaitTime" value="2000"/>
+        <property name="socketTimeout" value="2000"/>
+        <property name="socketKeepAlive" value="true"/>
+        <property name="safe" value="true"/>
+        <property name="w" value="0"/>
+        <property name="wtimeout" value="0"/>
+        <property name="fsync" value="false"/>
+        <property name="j" value="false"/>
+    </bean>
+
+    <bean id="readPreferenceSecondary" class="com.mongodb.TaggableReadPreference.SecondaryPreferredReadPreference" />
+    <bean id="readNearest" class="com.mongodb.TaggableReadPreference.NearestReadPreference" />
+
+    <bean id="testdb" class="org.springframework.data.mongodb.core.MongoTemplate" scope="singleton">
+        <constructor-arg name="mongo" ref="mongoWEB"/>
+        <constructor-arg name="databaseName" value="testdb"/>
+        <property name="writeResultChecking">
+            <util:constant static-field="org.springframework.data.mongodb.core.WriteResultChecking.NONE"/>
+        </property>
+        <property name="writeConcern">
+            <util:constant static-field="com.mongodb.WriteConcern.ACKNOWLEDGED"/>
+        </property>
+        <property name="readPreference" ref="readPreferenceSecondary" />
+    </bean>
+
+    <bean id="testDAO" class="com.lorabit.model.mongo.test.TestDAO"></bean>
+
+</beans>

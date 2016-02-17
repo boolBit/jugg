@@ -1,0 +1,26 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!-- basic Hive driver bean -->
+    <bean id="hive-driver" class="org.apache.hive.jdbc.HiveDriver"/>
+
+    <bean id="hive-ds" class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
+          c:driver-ref="hive-driver" c:url="jdbc:hive2://localhost:10000/" c:username="hellokitty" c:password=""/>
+
+    <bean id="hiveJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" c:data-source-ref="hive-ds"/>
+
+    <!-- basic MySQL driver bean -->
+    <bean id="std-mysql-driver" class="com.mysql.jdbc.Driver"/>
+
+    <bean id="std-mysql-ds" class="org.springframework.jdbc.datasource.SimpleDriverDataSource"
+          c:driver-ref="std-mysql-driver" c:url="jdbc:mysql://localhost:3306/test?useUnicode=true" c:username="root" c:password="root">
+    </bean>
+
+    <!-- standard JdbcTemplate declaration -->
+    <bean id="stdMySQLJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" c:data-source-ref="std-mysql-ds"/>
+
+
+</beans>

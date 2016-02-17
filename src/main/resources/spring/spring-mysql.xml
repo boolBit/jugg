@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="
+                http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/aop
+                http://www.springframework.org/schema/aop/spring-aop.xsd
+                http://www.springframework.org/schema/tx
+                http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="maxActive" value="60"/>
+        <property name="maxIdle" value="60"/>
+        <property name="initialSize" value="1"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="60"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="testWhileIdle" value="false"/>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="masterDataSourceBuy"/>
+    </bean>
+    <bean id="transactionTemplate"
+          class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <!-- Spring iBatis SqlMapClient -->
+    <bean id="sqlSessionFactoryBuyMaster" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="masterDataSourceBuy"/>
+        <property name="typeAliasesPackage" value="com.lorabit.model.mysql"/>
+        <property name="mapperLocations"
+                  value="classpath*:com/lorabit/model/mysql/**/*DO.xml"/>
+    </bean>
+
+    <bean id="sqlSessionBuyMaster" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBuyMaster"/>
+    </bean>
+
+    <!-- scan for mappers and let them be autowired -->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
+        <!--<property name="basePackage" value="com.lorabit.dao"/>-->
+        <!--<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBuyMaster"/>-->
+    <!--</bean>-->
+
+    <bean id="couponMap" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface"
+                  value="com.lorabit.dao.CouponMap" />
+        <property name="sqlSessionFactory" ref="sqlSessionFactoryBuyMaster" />
+    </bean>
+
+
+    <!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
+
+</beans>

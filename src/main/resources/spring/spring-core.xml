@@ -55,4 +55,15 @@
         </property>
     </bean>
 
+    <bean id="taskScheduler" class="com.lorabit.cloud.scheduler.TaskScheduler" />
+    <bean id="runtimeConfig" class="com.lorabit.cloud.RuntimeConfig" >
+        <property name="observers">
+            <list>
+                <ref bean="taskScheduler"></ref>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="taskHelper" class="com.lorabit.cloud.scheduler.TaskHelper" />
+
 </beans>

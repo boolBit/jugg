@@ -1,6 +1,7 @@
 <beans:beans xmlns="http://www.springframework.org/schema/security"
              xmlns:beans="http://www.springframework.org/schema/beans"
-             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:p="http://www.springframework.org/schema/p"
              xsi:schemaLocation="http://www.springframework.org/schema/beans
                     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                     http://www.springframework.org/schema/security
@@ -12,7 +13,7 @@
         <custom-filter position="PRE_AUTH_FILTER" ref="sessionManager"/>
     </http>
 
-    <beans:bean id="auth" class="lorabit.security.LoginEntryPoint">
+    <beans:bean id="auth" class="com.lorabit.security.LoginEntryPoint">
         <beans:property name="loginUrl" value="/login/"/>
     </beans:bean>
 
@@ -20,11 +21,11 @@
     <beans:bean id="authProvider"
                 class="org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider">
         <beans:property name="preAuthenticatedUserDetailsService">
-            <beans:bean class="lorabit.security.AuthService"/>
+            <beans:bean class="com.lorabit.security.AuthService"/>
         </beans:property>
     </beans:bean>
     <!--<beans:bean id="sessionMgr" class="com.duitang.infrastructure.SessionMgr" p:authenticationManager-ref="authenticationManager"/>-->
-    <beans:bean id="sessionManager" class="lorabit.security.SessionManager"
+    <beans:bean id="sessionManager" class="com.lorabit.security.SessionManager"
                 p:authenticationManager-ref="authenticationManager"/>
     <authentication-manager alias="authenticationManager">
         <authentication-provider ref="authProvider"/>

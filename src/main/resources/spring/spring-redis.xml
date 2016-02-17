@@ -1,40 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns:p="http://www.springframework.org/schema/p"
-xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-<!--<bean id="webRedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">-->
-<!--<property name="maxIdle" value="20"/>-->
-<!--<property name="maxWaitMillis" value="3000"/>-->
-<!--<property name="testOnBorrow" value="false"/>-->
-<!--<property name="testWhileIdle" value="false"/>-->
-<!--</bean>-->
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--<bean id="webRedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">-->
+    <!--<property name="maxIdle" value="20"/>-->
+    <!--<property name="maxWaitMillis" value="3000"/>-->
+    <!--<property name="testOnBorrow" value="false"/>-->
+    <!--<property name="testWhileIdle" value="false"/>-->
+    <!--</bean>-->
 
-<bean id="cartRedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
-<property name="maxIdle" value="20"/>
-<property name="minEvictableIdleTimeMillis" value="10000"/>
-<property name="maxWaitMillis" value="3000"/>
-<property name="testOnBorrow" value="true"/>
-<property name="testWhileIdle" value="false"/>
-</bean>
+    <bean id="cartRedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="20"/>
+        <property name="minEvictableIdleTimeMillis" value="10000"/>
+        <property name="maxWaitMillis" value="3000"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="testWhileIdle" value="false"/>
+    </bean>
 
-<!--<bean id="jedisConnFactorySession" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"-->
-<!--p:host-name="${redis.session.server}" p:port="${redis.session.port}" p:use-pool="true" p:database="0">-->
-<!--<property name="poolConfig" ref="webRedisPoolConfig"/>-->
-<!--</bean>-->
-<!--<bean name="jedisSession" class="org.springframework.data.redis.core.StringRedisTemplate" p:connection-factory-ref="jedisConnFactorySession"/>-->
+    <!--<bean id="jedisConnFactorySession" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"-->
+    <!--p:host-name="${redis.session.server}" p:port="${redis.session.port}" p:use-pool="true" p:database="0">-->
+    <!--<property name="poolConfig" ref="webRedisPoolConfig"/>-->
+    <!--</bean>-->
+    <!--<bean name="jedisSession" class="org.springframework.data.redis.core.StringRedisTemplate" p:connection-factory-ref="jedisConnFactorySession"/>-->
 
-<bean id="redisConnectionFactory"
-class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-p:host-name="${redis.host}" p:port="${redis.port}" p:use-pool="true" p:database="0">
-<property name="poolConfig" ref="cartRedisPoolConfig"/>
-</bean>
-<bean name="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate"
-p:connection-factory-ref="redisConnectionFactory"/>
-
-
+    <bean id="redisConnectionFactory"
+          class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:host-name="${redis.host}" p:port="${redis.port}" p:use-pool="true" p:database="0">
+        <property name="poolConfig" ref="cartRedisPoolConfig"/>
+    </bean>
+    <bean name="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate"
+          p:connection-factory-ref="redisConnectionFactory"/>
 
 
+    <bean
+            id="memcachedClient"
+            factory-bean="memcachedClientBuilder"
+            factory-method="build"
+            destroy-method="shutdown"/>
+
+    <bean
+            id="memcachedClientBuilder"
+            class="net.rubyeye.xmemcached.XMemcachedClientBuilder">
+        <constructor-arg>
+            <list>
+                <bean class="java.net.InetSocketAddress">
+                    <constructor-arg>
+                        <value>127.0.0.1</value>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <value>11211</value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+        <constructor-arg>
+            <list>
+                <value>1</value>
+            </list>
+        </constructor-arg>
+        <property name="commandFactory">
+            <bean class="net.rubyeye.xmemcached.command.TextCommandFactory"/>
+        </property>
+        <property name="sessionLocator">
+            <bean class="net.rubyeye.xmemcached.impl.KetamaMemcachedSessionLocator"/>
+        </property>
+        <property name="transcoder">
+            <bean class="net.rubyeye.xmemcached.transcoders.SerializingTranscoder"/>
+        </property>
+    </bean>
 
 
 </beans>

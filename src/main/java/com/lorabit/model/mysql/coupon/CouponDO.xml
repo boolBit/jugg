@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lorabit.dao.CouponMap">
+    <resultMap id="RM-COUPON" type="com.lorabit.model.mysql.coupon.CouponDO">
+        <result property="id" column="id"/>
+        <result property="uid" column="uid"/>
+        <result property="status" column="status"/>
+        <result property="templateId" column="template_id"/>
+        <result property="payOrderId" column="pay_order_id"/>
+        <result property="receivedTs" column="received_ts"/>
+        <result property="expireTs" column="expire_ts"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtUpdate" column="gmt_update"/>
+    </resultMap>
+
+    <sql id="COUPON-COLS">
+        <include refid="COUPON-COLS-INSERT"/>,
+        id, gmt_update
+    </sql>
+
+    <sql id="COUPON-COLS-INSERT">
+        uid, status, template_id, pay_order_id, received_ts, expire_ts, gmt_create
+    </sql>
+
+    <insert id="save" parameterType="CouponDO" keyColumn="id" keyProperty="id"
+            useGeneratedKeys="true">
+        INSERT INTO coupon (
+        <include refid="COUPON-COLS-INSERT"/>
+        ) VALUES (
+        #{uid}, #{status}, #{templateId}, #{payOrderId}, #{receivedTs}, #{expireTs}, now()
+        )
+    </insert>
+
+</mapper>

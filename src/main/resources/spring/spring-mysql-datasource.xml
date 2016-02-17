@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!-- buy 主数据源 -->
+    <bean id="masterDataSourceBuy" parent="parentDataSource">
+        <property name="url" value="${mysql.write.url}"/>
+        <property name="username" value="${mysql.write.username}"/>
+        <property name="password" value="${mysql.write.password}"/>
+    </bean>
+
+</beans>
