@@ -44,7 +44,7 @@
         <guava.version>18.0</guava.version>
         <lombok.version>1.12.6</lombok.version>
         <mail.version>1.4.7</mail.version>
-        <httpclient.version>4.2</httpclient.version>
+        <httpclient.version>4.4.1</httpclient.version>
 
         <!-- spring -->
 
@@ -601,6 +601,15 @@
                 <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.prop</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>

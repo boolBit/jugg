@@ -10,20 +10,20 @@ import java.util.concurrent.Callable;
  */
 public abstract class AbstractJob {
 
-  abstract Object execute(TaskContext contents);
+  public abstract void execute(TaskContext contents);
 
-  public Object exe(final TaskContext contents) {
+  public void exe(final TaskContext contents) {
     Callable callable = new Callable() {
       @Override
-      public Object call() throws Exception {
-        return execute(contents);
+      public Void call() throws Exception {
+        execute(contents);
+        return null;
       }
     };
     try {
-      return callable.call();
+       callable.call();
     } catch (Exception e) {
       e.printStackTrace();
-      return null;
     }
   }
 

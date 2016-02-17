@@ -65,5 +65,19 @@
     </bean>
 
     <bean id="taskHelper" class="com.lorabit.cloud.scheduler.TaskHelper" />
+    <bean id="solrWebLBServer" class="org.apache.solr.client.solrj.impl.LBHttpSolrClient">
+        <constructor-arg>
+            <array value-type="java.lang.String">
+                <value>http://127.0.0.1:8983/solr/web_shard1_replica1/</value>
+            </array>
+        </constructor-arg>
+    </bean>
+    <bean id="solrBlogLBServer" class="org.apache.solr.client.solrj.impl.LBHttpSolrClient">
+        <constructor-arg>
+            <array value-type="java.lang.String">
+                <value>http://127.0.0.1:8983/solr/test_shard1_replica1/</value>
+            </array>
+        </constructor-arg>
+    </bean>
 
 </beans>

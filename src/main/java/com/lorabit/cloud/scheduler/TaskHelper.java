@@ -28,10 +28,10 @@ public class TaskHelper {
         .withIdentity(task.getTaskName())
         .startNow()
         .withSchedule(CronScheduleBuilder.cronSchedule(task.getCronExpr()))
+        .usingJobData(data)
         .build();
     JobDetail job = JobBuilder.newJob(ProxyJob.class)
         .withIdentity(new JobKey(task.getTaskName()))
-        .usingJobData(data)
         .build();
 
     taskScheduler.remove(task.getTaskName());

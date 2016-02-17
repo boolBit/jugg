@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="test_cron_task" class="com.lorabit.cloud.BaseTask" init-method="trigger">
+        <property name="cronExpr" value="20 * * * * ?" />
+        <property name="taskName" value="test_cron_task" />
+        <property name="type" value="CRON" />
+        <property name="description" value="test_cron_task" />
+        <property name="job">
+            <bean class="com.lorabit.cloud.job.test.TestJob"/>
+        </property>
+    </bean>
+
+    <bean id="reportTask" class="com.lorabit.cloud.BaseTask" init-method="trigger">
+        <property name="topics">
+            <list>
+                <value>test</value>
+            </list>
+        </property>
+        <property name="type" value="MSG" />
+        <property name="parallelNum" value="1"/>
+        <property name="groupId" value="cloud" />
+        <property name="taskName" value="reportTask" />
+        <property name="description" value="reportTask" />
+        <property name="job">
+            <bean class="com.lorabit.cloud.job.test.TestReport"/>
+        </property>
+    </bean>
+
+</beans>

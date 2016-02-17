@@ -1,5 +1,6 @@
 package com.lorabit.view;
 
+import com.lorabit.cloud.scheduler.TaskScheduler;
 import com.lorabit.dao.CouponDAO;
 import com.lorabit.model.mysql.coupon.CouponDO;
 
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -21,6 +23,9 @@ public class HelloController {
   @Resource
   CouponDAO couponDAO;
 
+  @Resource
+  TaskScheduler taskScheduler;
+
   @RequestMapping(value = "/")
   @ResponseBody
   public Map index() {
@@ -33,6 +38,14 @@ public class HelloController {
   public int coupon() {
     return couponDAO.save(CouponDO.mock());
   }
+
+  @RequestMapping(value = "/info")
+  @ResponseBody
+  public List<Map<String, Object>> info() {
+    return taskScheduler.getCurrentRunInfo();
+  }
+
+
 
 
 }

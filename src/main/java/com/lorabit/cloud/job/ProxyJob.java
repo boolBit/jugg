@@ -14,7 +14,7 @@ public class ProxyJob implements Job {
 
   @Override
   public void execute(JobExecutionContext context) throws JobExecutionException {
-    Task task = (Task) context.get("_task");
+    Task task = (Task) context.getTrigger().getJobDataMap().get("_task");
     task.exe(Task.TriggerType.CRON);
   }
 }
