@@ -33,11 +33,8 @@
           p:connection-factory-ref="redisConnectionFactory"/>
 
 
-    <bean
-            id="memcachedClient"
-            factory-bean="memcachedClientBuilder"
-            factory-method="build"
-            destroy-method="shutdown"/>
+    <bean id="memcachedClient" factory-bean="memcachedClientBuilder"
+            factory-method="build" destroy-method="shutdown"/>
 
     <bean
             id="memcachedClientBuilder"
@@ -70,5 +67,5 @@
         </property>
     </bean>
 
-
+    <bean id="catService" class="com.lorabit.memcache.CatServiceImpl" />
 </beans>

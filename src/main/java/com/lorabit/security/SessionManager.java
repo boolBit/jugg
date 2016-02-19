@@ -101,7 +101,7 @@ public class SessionManager extends AbstractPreAuthenticatedProcessingFilter imp
     Map<String, Object> map = new HashMap<>();
     try {
       String sessionInfo = findRedisSessionData(name);
-      Preconditions.checkArgument(sessionInfo != null);
+      if(sessionInfo == null) return map;
       Preconditions.checkArgument(sessionInfo.split(":").length >= 2);
       return mapper.readValue(sessionInfo.substring(sessionInfo.indexOf(":") + 1), map.getClass());
     } catch (Exception e) {

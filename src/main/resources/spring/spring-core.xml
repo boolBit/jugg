@@ -80,4 +80,6 @@
         </constructor-arg>
     </bean>
 
+    <bean id="ctxHolder" class="com.lorabit.util.CtxHolder" />
+
 </beans>

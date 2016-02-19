@@ -2,6 +2,7 @@ package com.lorabit.cloud;
 
 import com.lorabit.cloud.job.AbstractJob;
 import com.lorabit.cloud.scheduler.TaskHelper;
+import com.lorabit.cloud.status.RuntimeStatus;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
@@ -29,10 +30,13 @@ public class BaseTask implements Task {
   @Resource
   RuntimeConfig runtimeConfig;
 
+  public static Map<String, Task> tasks = new HashMap();
+
   private String taskName;
   private String description;
   private String cronExpr;
   private TriggerType type;
+  private int timeoutNum;
 
   private AbstractJob job;
   private Map<String, Object> extData;
@@ -54,6 +58,7 @@ public class BaseTask implements Task {
     context.put(TaskContext.DESC, description);
     context.put(TaskContext.TASK_NAME, getTaskName());
     context.put(TaskContext.TYPE, type);
+    context.put(TaskContext.TIMEOUT_NUM,timeoutNum);
     if (extData != null && extData.size() > 0) {
       context.putAll(extData);
     }
@@ -66,6 +71,8 @@ public class BaseTask implements Task {
       case CRON:
         cron();
         break;
+
+      case MANAUAL:
       case CONTAINER:
         Thread t = new Thread(new Runnable() {
           @Override
@@ -75,6 +82,7 @@ public class BaseTask implements Task {
         }, "container_job_" + getTaskName());
         t.start();
         break;
+
       case MSG:
         final ConsumerConnector connector = Consumer.createJavaConsumerConnector(createConsumerConfig());
         HashMap<String, Integer> m = new HashMap();
@@ -99,7 +107,15 @@ public class BaseTask implements Task {
             }.start();
           }
         }
+        break;
+      default:
+        return;
     }
+    /** hold task **/
+    tasks.remove(taskName);
+    tasks.put(taskName, this);
+    /** register task info**/
+    RuntimeStatus.get().register(this);
   }
 
   private void cron() {
@@ -109,6 +125,16 @@ public class BaseTask implements Task {
   @Override
   public String getCronExpr() {
     return cronExpr;
+  }
+
+  @Override
+  public List<String> getTopics() {
+    return topics;
+  }
+
+  @Override
+  public TriggerType getTriggerType() {
+    return type;
   }
 
   @Override

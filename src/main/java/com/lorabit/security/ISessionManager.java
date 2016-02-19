@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface ISessionManager {
 
-  static final String SESSIONID = "session_id";
+  static final String SESSIONID = "session_id_id";
   static final String UID = "u_id";
   static final String UNAME = "u_name";
   static final String AUTH_TOKEN = "auth_token";

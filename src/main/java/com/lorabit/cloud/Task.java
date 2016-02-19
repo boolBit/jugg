@@ -1,5 +1,6 @@
 package com.lorabit.cloud;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,6 +14,10 @@ public interface Task {
   public void trigger();
 
   String getCronExpr();
+
+  List<String> getTopics();
+
+  TriggerType getTriggerType();
 
   void exe(TriggerType cron);
   void exe(TriggerType cron,String msg);

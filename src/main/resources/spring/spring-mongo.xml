@@ -60,6 +60,19 @@
         <property name="readPreference" ref="readPreferenceSecondary" />
     </bean>
 
+    <bean id="cloudTemplate" class="org.springframework.data.mongodb.core.MongoTemplate"
+          scope="singleton">
+        <constructor-arg name="mongo" ref="mongoWEB"/>
+        <constructor-arg name="databaseName" value="cloudDB"/>
+        <property name="writeResultChecking">
+            <util:constant static-field="org.springframework.data.mongodb.core.WriteResultChecking.NONE"/>
+        </property>
+        <property name="writeConcern">
+            <util:constant static-field="com.mongodb.WriteConcern.ACKNOWLEDGED"/>
+        </property>
+        <property name="readPreference" ref="readPreferenceSecondary" />
+    </bean>
+
     <bean id="testDAO" class="com.lorabit.model.mongo.test.TestDAO"></bean>
 
 </beans>
