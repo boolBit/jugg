@@ -14,6 +14,15 @@
             <bean class="com.lorabit.cloud.job.test.TestJob"/>
         </property>
     </bean>
+    <bean id="test_t_task" class="com.lorabit.cloud.BaseTask" init-method="trigger">
+        <property name="cronExpr" value="0 * * * * ?" />
+        <property name="taskName" value="test_t_task" />
+        <property name="type" value="CRON" />
+        <property name="description" value="test_cron_task" />
+        <property name="job">
+            <bean class="com.lorabit.cloud.job.test.CreateThreadJob"/>
+        </property>
+    </bean>
 
     <bean id="reportTask" class="com.lorabit.cloud.BaseTask" init-method="trigger">
         <property name="topics">

@@ -9,6 +9,20 @@
         </layout>
     </appender>
 
+    <appender name="cctAppender" class="org.apache.log4j.DailyRollingFileAppender">
+        <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler" />
+        <param name="File" value="/home/hellokitty/logs/jugg/cct.log" />
+        <param name="Append" value="true" />
+        <param name="Threshold" value="INFO" />
+        <param name="DatePattern" value="'.'yyyy-MM-dd'.log'" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[cct]%d %-5p [%c %L] %m%n" />
+        </layout>
+    </appender>
+    <logger name="cct" additivity="false">
+        <level value="info" />
+        <appender-ref ref="cctAppender" />
+    </logger>
 
     <root>
         <priority value="warn"/>
