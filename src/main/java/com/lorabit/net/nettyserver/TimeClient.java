@@ -36,11 +36,14 @@ public class TimeClient {
     try {
       ChannelFuture future = boot.connect(host, port).sync();
       System.out.println(future.isSuccess());
-      future.channel().closeFuture().sync();
+//      future.await(2000);
+      Thread.sleep(2000);
+      System.out.println(future.isSuccess());
+//      future.channel().closeFuture().sync();
     } catch (InterruptedException e) {
       e.printStackTrace();
     } finally {
-      workerGroup.shutdownGracefully();
+//      workerGroup.shutdownGracefully();
     }
   }
 }

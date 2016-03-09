@@ -2,6 +2,9 @@ package com.lorabit.rpc.router;
 
 import com.lorabit.rpc.base.LifeCycle;
 import com.lorabit.rpc.client.JavaClientHandler;
+import com.lorabit.rpc.client.RpcClientHandlerInitializer;
+import com.lorabit.rpc.meta.BinaryPacketData;
+import com.lorabit.rpc.meta.RpcRemoteLatch;
 
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -39,7 +42,7 @@ public class RpcIOSession implements LifeCycle {
     bootstrap.group(worker);
     bootstrap.option(ChannelOption.TCP_NODELAY, true);
     bootstrap.channel(NioSocketChannel.class);
-    bootstrap.handler(new RpcHandlerInitializer(new JavaClientHandler()));
+    bootstrap.handler(new RpcClientHandlerInitializer(new JavaClientHandler()));
     String[] host_port = connHostPort.split(":");
     cf = bootstrap.connect(
         new InetSocketAddress(host_port[0], NumberUtils.toInt(host_port[1])));
@@ -75,6 +78,14 @@ public class RpcIOSession implements LifeCycle {
     return uuid;
   }
 
+  public void write(BinaryPacketData data){
+    session.writeAndFlush(data.getBytes());
+  }
+
+  public void setLatch(RpcRemoteLatch latch){
+    session.attr(RpcRemoteLatch.LATCH_KEY).set(latch);
+  }
+
   @Override
   public boolean isAlive() {
     return this.isConnected();
@@ -92,5 +103,9 @@ public class RpcIOSession implements LifeCycle {
     if (cf != null) {
       cf.cancel(true);
     }
+  }
+
+  public String getConnHostPort() {
+    return connHostPort;
   }
 }

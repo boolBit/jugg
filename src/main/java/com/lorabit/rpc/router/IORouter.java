@@ -6,7 +6,7 @@ import java.util.Map;
  * @author lorabit
  * @since 16-3-7
  */
-public interface IOBalance {
+public interface IORouter {
 
   public String next(String token);
 

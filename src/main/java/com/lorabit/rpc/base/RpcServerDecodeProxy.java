@@ -1,4 +1,4 @@
-package com.lorabit.rpc.router;
+package com.lorabit.rpc.base;
 
 import java.util.List;
 
@@ -10,10 +10,10 @@ import io.netty.util.AttributeKey;
 
 /**
  * @author lorabit
- * @since 16-3-8
+ * @since 16-3-9
  */
-public class RpcPacketDecoder extends ByteToMessageDecoder {
-  static AttributeKey<RpcNettyPacketDecoder> DECODER_NAME = AttributeKey.valueOf("DECODER");
+public class RpcServerDecodeProxy extends ByteToMessageDecoder {
+  static AttributeKey<RpcNettyPacketDecoder> DECODER_NAME = AttributeKey.valueOf("SERVER_DECODER");
 
 
   @Override
@@ -28,7 +28,7 @@ public class RpcPacketDecoder extends ByteToMessageDecoder {
       attr.compareAndSet(null, decoder);
     }
     RpcNettyPacketDecoder decoder = attr.get();
-
+    System.out.println("server decode : " );
     decoder.decode(ctx, in, out);
 
   }

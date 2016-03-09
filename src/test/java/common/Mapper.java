@@ -45,6 +45,7 @@ public class Mapper {
 //    System.out.println(demo);
 //    System.out.println(demo2);
     System.out.println(RandomUtils.nextLong());
+    System.out.println(5 % 10);
   }
 
 }

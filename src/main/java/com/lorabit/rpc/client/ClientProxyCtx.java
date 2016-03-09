@@ -1,9 +1,12 @@
-package com.lorabit.rpc.base;
+package com.lorabit.rpc.client;
 
+import com.lorabit.rpc.base.RpcConfig;
 import com.lorabit.rpc.exception.RpcException;
 import com.lorabit.rpc.meta.BinaryPacketData;
 import com.lorabit.rpc.meta.RpcRemoteLatch;
-import com.lorabit.rpc.router.IOBalance;
+import com.lorabit.rpc.router.IORouter;
+import com.lorabit.rpc.router.RpcIOPool;
+import com.lorabit.rpc.router.RpcIOSession;
 import com.lorabit.rpc.router.impl.ModIOBalance;
 
 import org.mockito.cglib.proxy.Enhancer;
@@ -19,16 +22,18 @@ import java.util.List;
  * @since 16-3-7
  */
 public class ClientProxyCtx<T> implements MethodInterceptor {
+  private static final RpcIOPool pool = new RpcIOPool();
+
   private long timeout;
   private List<String> methodNames = new ArrayList<>();
   private String domainName;
-  private IOBalance ioBalance;
+  private IORouter router;
 
   private T serviceProxy;
 
   private ClientProxyCtx(Class clazz, String group, List<String> urls) {
     this.domainName = clazz.getName();
-    this.ioBalance = ModIOBalance.getInstance(group, urls);
+    this.router = ModIOBalance.getInstance(group, urls);
     for (Method method : clazz.getDeclaredMethods()) {
       methodNames.add(method.getName());
     }
@@ -40,7 +45,7 @@ public class ClientProxyCtx<T> implements MethodInterceptor {
       List<String> urls,
       String group,
       long timeout) {
-    ClientProxyCtx client = new ClientProxyCtx<T>(clazz, group, urls);
+    ClientProxyCtx client = new ClientProxyCtx<>(clazz, group, urls);
     client.timeout = timeout;
     client.serviceProxy = (T) Enhancer.create(null, new Class[]{clazz}, client);
     return client;
@@ -67,17 +72,24 @@ public class ClientProxyCtx<T> implements MethodInterceptor {
     packet.method = name;
 
     Object ret;
-    String url;
+    String url = null;
     RpcRemoteLatch latch = new RpcRemoteLatch(timeout);
-    boolean failure = false;
+    RpcIOSession session = null;
     try {
-      url = this.ioBalance.next(null);
-
+      url = this.router.next(null);
+      session = pool.getSession(url);  //will never return a active session so its thread safe
+      packet.uuid = session.getUuid().incrementAndGet();
+      latch.setUuid(packet.uuid);
+      session.setLatch(latch);
+      session.write(packet);
+      ret = latch.getResult();
     } catch (Exception e) {
-
+      router.fail(url);
+      throw e;
+    } finally {
+      pool.releaseIOSession(session);
     }
 
-
-    return null;
+    return ret;
   }
 }

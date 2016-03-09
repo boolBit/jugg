@@ -22,11 +22,6 @@ public class RpcConfig implements Serializable {
     return data != null;
   }
 
-  @Override
-  public String toString() {
-    return "";
-  }
-
   public Serializable getConf(String key) {
     return data.get(key);
   }
@@ -35,4 +30,11 @@ public class RpcConfig implements Serializable {
     this.data.put(key, data);
   }
 
+
+  @Override
+  public String toString() {
+    return "RpcConfig{" +
+        "data=" + data +
+        '}';
+  }
 }

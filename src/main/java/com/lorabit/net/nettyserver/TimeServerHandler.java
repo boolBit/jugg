@@ -13,6 +13,7 @@ public class TimeServerHandler extends ChannelInboundHandlerAdapter {
 
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    System.out.println("read some msg from client" + msg);
     ChannelFuture f = ctx.writeAndFlush(msg);
 //    f.addListener(ChannelFutureListener.CLOSE);
   }

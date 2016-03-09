@@ -9,7 +9,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @author lorabit
  * @since 16-2-29
  */
-public class NettyTimeClientHandler extends ChannelInboundHandlerAdapter {
+public class  NettyTimeClientHandler extends ChannelInboundHandlerAdapter {
 
   private ByteBuf buf;
 
@@ -34,9 +34,11 @@ public class NettyTimeClientHandler extends ChannelInboundHandlerAdapter {
   @Override
   public void channelActive(ChannelHandlerContext ctx) throws Exception {
     byte[] str = "now".getBytes();
-    ByteBuf buf = Unpooled.buffer(str.length);
-    System.out.println("write msg");
-    buf.writeBytes(str);
+    byte[] empty  = new byte[]{12};
+    ByteBuf buf = Unpooled.buffer(empty.length);
+    System.out.println("write msg" + empty);
+    System.out.println(empty.length);
+    buf.writeBytes(empty);
     ctx.writeAndFlush(buf);
     ctx.flush();
   }

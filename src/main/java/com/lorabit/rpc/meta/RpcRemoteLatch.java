@@ -23,10 +23,6 @@ public class RpcRemoteLatch {
   private Throwable ex;
   private long uuid;
 
-  public RpcRemoteLatch() {
-    this(500);
-  }
-
   public RpcRemoteLatch(long time) {
     latch = new CountDownLatch(1);
     this.timeout = time;
@@ -44,6 +40,7 @@ public class RpcRemoteLatch {
 
   public Object getResult() throws Throwable {
     try {
+      System.out.println(timeout);
       if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
         throw new RpcTimeoutException();
       }

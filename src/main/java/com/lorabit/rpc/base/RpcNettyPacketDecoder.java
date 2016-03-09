@@ -1,4 +1,4 @@
-package com.lorabit.rpc.router;
+package com.lorabit.rpc.base;
 
 import com.lorabit.rpc.exception.RpcException;
 import com.lorabit.rpc.meta.BinaryPacketData;
@@ -27,13 +27,13 @@ public class RpcNettyPacketDecoder {
   private int empty_read = 0;
   private int suspect_loop = 0;
   private int state;
-  protected int szBuf;
+  protected int[] szBuf = new int[1];
 
 
   public void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws RpcException {
     ByteBuffer buff;
-    boolean flag = false;
-    while (in.isReadable() && !flag) {
+    boolean flag = true;
+    while (in.readableBytes() > 1 && flag) {
       if (raw == null) {
         raw = setUpRawPacket(in);
         if (raw != null) {
@@ -41,9 +41,11 @@ public class RpcNettyPacketDecoder {
         }
         if (suspect_loop > 0) {
           // caution: how to explain? brute cut off
+          System.out.println("hit loop forever at setUpRawPacket");
           throw new RpcException("hit loop forever at setUpRawPacket");
         }
         if (empty_read > EMPTY_READ_WATERMARK) {
+          System.out.println("hit empty read at setUpRawPacket");
           throw new RpcException("hit empty read at setUpRawPacket");
         }
         continue; // anyway check if has remaining
@@ -52,7 +54,7 @@ public class RpcNettyPacketDecoder {
         case 3: // config size
           flag = readSize(in, szBuf);
           if (flag) {
-            raw.setSzConf(szBuf);
+            raw.setSzConf(szBuf[0]);
           }
           break;
         case 4: // config
@@ -61,66 +63,80 @@ public class RpcNettyPacketDecoder {
           }
           buff = raw.getConf();
           flag = readBytes(in, raw.getSzConf(), buff);
+          break;
+
         case 5: // DOMAIN_SIZE
           flag = readSize(in, szBuf);
           if (flag) {
-            raw.setSzConf(szBuf);
+            raw.setSzDomainName(szBuf[0]);
           }
           break;
         case 6: // DOMAIN
-          if (raw.getConf() == null && raw.getSzConf() > 0) {
-            raw.setConf(ByteBuffer.allocate(raw.getSzConf()));
+          if (raw.getDomainName() == null && raw.getSzDomainName() > 0) {
+            raw.setDomainName(ByteBuffer.allocate(raw.getSzDomainName()));
           }
-          buff = raw.getConf();
-          flag = readBytes(in, raw.getSzConf(), buff);
+          buff = raw.getDomainName();
+          flag = readBytes(in, raw.getSzDomainName(), buff);
+          break;
+
         case 7: // METHOD_SIZE
           flag = readSize(in, szBuf);
           if (flag) {
-            raw.setSzConf(szBuf);
+            raw.setSzMethodName(szBuf[0]);
           }
           break;
         case 8: // METHOD
-          if (raw.getConf() == null && raw.getSzConf() > 0) {
-            raw.setConf(ByteBuffer.allocate(raw.getSzConf()));
+          if (raw.getMethodName() == null && raw.getSzMethodName() > 0) {
+            raw.setMethodName(ByteBuffer.allocate(raw.getSzMethodName()));
           }
-          buff = raw.getConf();
-          flag = readBytes(in, raw.getSzConf(), buff);
+          buff = raw.getMethodName();
+          flag = readBytes(in, raw.getSzMethodName(), buff);
+          break;
+
         case 9: // PARAMETER_SIZE
           flag = readSize(in, szBuf);
           if (flag) {
-            raw.setSzConf(szBuf);
+            raw.setSzParameter(szBuf[0]);
           }
           break;
         case 10: // PARAMETER
-          if (raw.getConf() == null && raw.getSzConf() > 0) {
-            raw.setConf(ByteBuffer.allocate(raw.getSzConf()));
+          if (raw.getParameter() == null && raw.getSzParameter() > 0) {
+            raw.setParameter(ByteBuffer.allocate(raw.getSzParameter()));
           }
-          buff = raw.getConf();
-          flag = readBytes(in, raw.getSzConf(), buff);
+          buff = raw.getParameter();
+          flag = readBytes(in, raw.getSzParameter(), buff);
+          break;
+
         case 11: // RETURN_SIZE
           flag = readSize(in, szBuf);
           if (flag) {
-            raw.setSzConf(szBuf);
+            raw.setSzRet(szBuf[0]);
           }
           break;
         case 12: // RETURN
-          if (raw.getConf() == null && raw.getSzConf() > 0) {
-            raw.setConf(ByteBuffer.allocate(raw.getSzConf()));
+          if (raw.getRet() == null && raw.getSzRet() > 0) {
+            raw.setRet(ByteBuffer.allocate(raw.getSzRet()));
           }
-          buff = raw.getConf();
-          flag = readBytes(in, raw.getSzConf(), buff);
+          buff = raw.getRet();
+          flag = readBytes(in, raw.getSzRet(), buff);
+          break;
+
         case 13: // EXCEPTION_SIZE
           flag = readSize(in, szBuf);
           if (flag) {
-            raw.setSzConf(szBuf);
+            raw.setSzError(szBuf[0]);
+            if (szBuf[0] == 0) {   // for there is no more any bytes coming...
+              state = 15;
+            }
           }
           break;
         case 14: // EXCEPTION
-          if (raw.getConf() == null && raw.getSzConf() > 0) {
-            raw.setConf(ByteBuffer.allocate(raw.getSzConf()));
+          if (raw.getError() == null && raw.getSzError() > 0) {
+            raw.setError(ByteBuffer.allocate(raw.getSzError()));
           }
-          buff = raw.getConf();
-          flag = readBytes(in, raw.getSzConf(), buff);
+          buff = raw.getError();
+          flag = readBytes(in, raw.getSzError(), buff);
+          break;
         default:
           break;
       }
@@ -146,7 +162,8 @@ public class RpcNettyPacketDecoder {
       return false;
     }
     int readLen = remain <= in.readableBytes() ? remain : in.readableBytes();
-    boolean ret = readLen <= in.readableBytes();
+    boolean ret = remain <= in.readableBytes();
+
     in.readBytes(buff.array(), buff.position(), readLen);
     buff.position(buff.position() + readLen);
     if (ret) {
@@ -199,11 +216,11 @@ public class RpcNettyPacketDecoder {
     return null;
   }
 
-  protected boolean readSize(ByteBuf in, int size) {
+  protected boolean readSize(ByteBuf in, int[] size) {
     if (in.readableBytes() < 4) { // if long ready
       return false;
     }
-    size = in.readInt();
+    size[0] = in.readInt();
     state++;
     return true;
   }

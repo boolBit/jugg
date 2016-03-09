@@ -22,7 +22,7 @@ public class JavaClientHandler extends SimpleChannelInboundHandler<BinaryPacketR
 
   @Override
   protected void channelRead0(ChannelHandlerContext ctx, BinaryPacketRaw msg) throws Exception {
-    BinaryPacketData data = null;
+    BinaryPacketData data ;
     data = BinaryPacketHelper.fromRawToData(msg);
 
     Attribute<RpcRemoteLatch> att = ctx.channel().attr(RpcRemoteLatch.LATCH_KEY);

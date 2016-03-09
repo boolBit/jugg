@@ -93,13 +93,14 @@ public class BinaryPacketData {
 
     // version
     buff.writeFloat(version);
+    System.out.println("version " + version);
 
     // flag
     buff.writeInt(flag);
-
+    System.out.println("flag " + flag);
     // uuid
     buff.writeLong(uuid);
-
+    System.out.println("uuid " + uuid);
     // config
     try {
       bytes = ObjToByte(conf);
@@ -109,6 +110,7 @@ public class BinaryPacketData {
         ex = e;
       }
     }
+    System.out.println("conf len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
@@ -118,6 +120,7 @@ public class BinaryPacketData {
     } else {
       bytes = domain.getBytes();
     }
+    System.out.println("domain len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
@@ -127,6 +130,7 @@ public class BinaryPacketData {
     } else {
       bytes = method.getBytes();
     }
+    System.out.println("method  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
@@ -139,6 +143,7 @@ public class BinaryPacketData {
         ex = e;
       }
     }
+    System.out.println("param  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
@@ -151,17 +156,24 @@ public class BinaryPacketData {
         ex = e;
       }
     }
+    System.out.println("ret  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
     // exception
-    bytes = errToBytes(ex);
+    try {
+      bytes = ObjToByte(ex);
+    } catch (RpcException e) {
+      bytes = EMPTY;
+    }
+    System.out.println("ex  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
     // place in total and checksum
     int endWriteIndex = buff.writerIndex();
     buff.writerIndex(startWriterIndex);
+    System.out.println("endWriteIndex : " + endWriteIndex + "startWriterIndex : " + startWriterIndex);
     buff.writeInt(endWriteIndex);
 
     Checksum ck = new Adler32();

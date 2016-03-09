@@ -1,16 +1,21 @@
-package com.lorabit.rpc.base;
+package com.lorabit.rpc.client;
+
+import com.lorabit.rpc.base.ServiceFactory;
 
 import java.util.List;
+
+import lombok.Data;
 
 /**
  * @author lorabit
  * @since 16-3-7
  */
+@Data
 public abstract class RpcClientFactory<T> implements ServiceFactory<T> {
 
-  private String group;
+  private String group ="demo";
   private List<String> serviceEndPoints;
-  private long timeout;
+  private long timeout = 4000L;
 
 
   public static <T1> RpcClientFactory<T1> createFactory(final Class<T1> interfaceClz) {
@@ -42,5 +47,7 @@ public abstract class RpcClientFactory<T> implements ServiceFactory<T> {
   public void release() {
 
   }
+
+
 
 }

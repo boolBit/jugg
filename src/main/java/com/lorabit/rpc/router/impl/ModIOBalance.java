@@ -1,22 +1,21 @@
 package com.lorabit.rpc.router.impl;
 
-import com.google.common.collect.Maps;
-
-import com.lorabit.rpc.router.IOBalance;
+import com.lorabit.rpc.router.IORouter;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author lorabit
  * @since 16-3-8
  */
-public class ModIOBalance implements IOBalance {
+public class ModIOBalance implements IORouter {
 
-  private static Map<String, ModIOBalance> caches = Maps.newConcurrentMap();
+  private static Map<String, ModIOBalance> caches = new ConcurrentHashMap<>();
 
   List<String> endPoints;
-  int count;
+  int count ;
   int faliureCount;
 
   public ModIOBalance() {
@@ -26,18 +25,18 @@ public class ModIOBalance implements IOBalance {
     this.endPoints = endPoints;
   }
 
-  public static IOBalance getInstance(String group, List<String> urls) {
-    ModIOBalance ioBalance = caches.get(group);
-    if (ioBalance == null) {
+  public static IORouter getInstance(String group, List<String> urls) {
+    ModIOBalance ioBalance;
+    if (!caches.containsKey(group)) {
       synchronized (ModIOBalance.class) {
         ioBalance = new ModIOBalance();
         ioBalance.endPoints = urls;
-        ioBalance.count = 0;
+        ioBalance.count = 1;
         ioBalance.faliureCount = 0;
         caches.put(group, ioBalance);
       }
     }
-    return ioBalance;
+    return caches.get(group);
   }
 
   @Override
@@ -56,6 +55,6 @@ public class ModIOBalance implements IOBalance {
 
   @Override
   public void fail(String token) {
-      faliureCount++;
+    faliureCount++;
   }
 }
