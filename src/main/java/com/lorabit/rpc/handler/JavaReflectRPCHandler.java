@@ -33,7 +33,7 @@ public class JavaReflectRPCHandler implements RpcHandler {
   }
 
   @Override
-  public void lookUp(RpcContext ctx) throws RpcException {
+  public void lookUp(RpcContext ctx) throws Exception {
     Invoker invoker = invokers.get(ctx.name);
     if (invoker == null)
       throw new RpcException("cant find service for" + ctx.name);
@@ -41,7 +41,7 @@ public class JavaReflectRPCHandler implements RpcHandler {
   }
 
   @Override
-  public void invoke(RpcContext ctx) throws RpcException {
+  public void invoke(RpcContext ctx) throws Exception {
     ctx.ret = ctx.invoker.invoke(ctx.method, ctx.params);
   }
 }

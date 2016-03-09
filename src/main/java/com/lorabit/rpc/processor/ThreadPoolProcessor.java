@@ -23,7 +23,7 @@ public class ThreadPoolProcessor implements Processor<BinaryPacketRaw> {
   );
 
   @Override
-  public void process(RpcContext ctx, BinaryPacketRaw ret) throws RpcException {
+  public void process(RpcContext ctx, BinaryPacketRaw ret) {
     JobRunner job = new JobRunner(ctx, ret);
     executor.submit(job);
   }
@@ -53,17 +53,20 @@ public class ThreadPoolProcessor implements Processor<BinaryPacketRaw> {
         handler.lookUp(ctx);
         handler.invoke(ctx);
         data.ret = ctx.ret;
-      } catch (RpcException e) {
+      } catch (Exception e) {
+        System.out.println("---> invoke error" + e.getMessage());
         if (data == null) {
           data = new BinaryPacketData();
+          data.uuid = raw.getUuid();
         }
         int tries = 0;
-        Throwable root = e;
-        while (root.getCause() != null && tries++ < 5) root = root.getCause();
-        data.ex = root;
+//        Throwable root = e;
+//        while (root.getCause() != null && tries++ < 5) root = root.getCause();
+        data.ex = new RpcException(e);
       }
 
       if (raw.ctx != null) {
+        System.out.println("server return ");
         raw.ctx.writeAndFlush(data.getBytes());
       }
     }

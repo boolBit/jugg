@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -65,12 +66,26 @@ public class ServiceHolder {
     Thread.currentThread().setName("ServiceHolder");
 
     IDemoService service = (IDemoService) holder.create();
+
+    try {
+      service.exception();
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.println("msg "+e.getMessage());
+    }
     String now = service.now();
+    System.out.println(now);
 
 
-    System.out.println(now);
-//    now = service.now();
-    System.out.println(now);
+    List<Object> list = service.getList();
+    System.out.println(list.size());
+    System.out.println(list);
+    Throwable throwable = (Throwable) list.get(0);
+    System.out.println(throwable.getMessage());
+    Map m = service.getMap();
+    System.out.println(m.get("like"));
+
+
   }
 
 

@@ -1,13 +1,10 @@
 package com.lorabit.rpc.meta;
 
 import com.lorabit.rpc.base.RpcConfig;
-import com.lorabit.rpc.exception.RpcException;
+import com.lorabit.util.KryoUtil;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.zip.Adler32;
 import java.util.zip.Checksum;
 
@@ -93,24 +90,24 @@ public class BinaryPacketData {
 
     // version
     buff.writeFloat(version);
-    System.out.println("version " + version);
+//    System.out.println("version " + version);
 
     // flag
     buff.writeInt(flag);
-    System.out.println("flag " + flag);
+//    System.out.println("flag " + flag);
     // uuid
     buff.writeLong(uuid);
-    System.out.println("uuid " + uuid);
+//    System.out.println("uuid " + uuid);
     // config
     try {
-      bytes = ObjToByte(conf);
-    } catch (RpcException e) {
+      bytes = ObjToByteUseKryo(conf);
+    } catch (Exception e) {
       bytes = EMPTY;
       if (ex == null) {
         ex = e;
       }
     }
-    System.out.println("conf len" + bytes.length);
+//    System.out.println("conf len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
@@ -118,9 +115,10 @@ public class BinaryPacketData {
     if (domain == null) {
       bytes = EMPTY;
     } else {
-      bytes = domain.getBytes();
+//      bytes = domain.getBytes();
+      bytes = ObjToByteUseKryo(domain);
     }
-    System.out.println("domain len" + bytes.length);
+//    System.out.println("domain len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
@@ -128,52 +126,53 @@ public class BinaryPacketData {
     if (method == null) {
       bytes = EMPTY;
     } else {
-      bytes = method.getBytes();
+//      bytes = method.getBytes();
+      bytes = ObjToByteUseKryo(method);
     }
-    System.out.println("method  len" + bytes.length);
+//    System.out.println("method  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
     // param
     try {
-      bytes = ObjToByte(param);
-    } catch (RpcException e) {
+      bytes = ObjToByteUseKryo(param);
+    } catch (Exception e) {
       bytes = EMPTY;
       if (ex == null) {
         ex = e;
       }
     }
-    System.out.println("param  len" + bytes.length);
+//    System.out.println("param  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
     // return
     try {
-      bytes = ObjToByte(ret);
-    } catch (RpcException e) {
+      bytes = ObjToByteUseKryo(ret);
+    } catch (Exception e) {
       bytes = EMPTY;
       if (ex == null) {
         ex = e;
       }
     }
-    System.out.println("ret  len" + bytes.length);
+//    System.out.println("ret  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
     // exception
     try {
-      bytes = ObjToByte(ex);
-    } catch (RpcException e) {
+      bytes = ObjToByteUseKryo(ex);
+    } catch (Exception e) {
       bytes = EMPTY;
     }
-    System.out.println("ex  len" + bytes.length);
+//    System.out.println("ex  len" + bytes.length);
     buff.writeInt(bytes.length);
     buff.writeBytes(bytes);
 
     // place in total and checksum
     int endWriteIndex = buff.writerIndex();
     buff.writerIndex(startWriterIndex);
-    System.out.println("endWriteIndex : " + endWriteIndex + "startWriterIndex : " + startWriterIndex);
+//    System.out.println("endWriteIndex : " + endWriteIndex + "startWriterIndex : " + startWriterIndex);
     buff.writeInt(endWriteIndex);
 
     Checksum ck = new Adler32();
@@ -186,18 +185,25 @@ public class BinaryPacketData {
     return buff.writerIndex(endWriteIndex);
   }
 
-  public byte[] ObjToByte(Object obj) throws RpcException {
+//  public byte[] ObjToByte(Object obj) throws RpcException {
+//    if (obj == null) {
+//      return EMPTY;
+//    }
+//    try {
+//      ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+//      ObjectOutputStream oos = new ObjectOutputStream(byteOut);
+//      oos.writeObject(obj);
+//      return byteOut.toByteArray();
+//    } catch (IOException e) {
+//      throw new RpcException(e);
+//    }
+//  }
+
+  protected byte[] ObjToByteUseKryo(Object obj) {
     if (obj == null) {
       return EMPTY;
     }
-    try {
-      ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-      ObjectOutputStream oos = new ObjectOutputStream(byteOut);
-      oos.writeObject(obj);
-      return byteOut.toByteArray();
-    } catch (IOException e) {
-      throw new RpcException(e);
-    }
+    return KryoUtil.serializeAndObject(obj);
   }
 
   protected byte[] errToBytes(Throwable t) {
@@ -207,5 +213,6 @@ public class BinaryPacketData {
     String ret = ExceptionUtils.getStackTrace(t);
     return ret.getBytes();
   }
+
 
 }

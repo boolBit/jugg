@@ -2,6 +2,8 @@ package com.lorabit.rpc.client;
 
 import com.lorabit.rpc.base.RpcConfig;
 import com.lorabit.rpc.exception.RpcException;
+import com.lorabit.rpc.exception.RpcNoMoreConnException;
+import com.lorabit.rpc.exception.RpcTimeoutException;
 import com.lorabit.rpc.meta.BinaryPacketData;
 import com.lorabit.rpc.meta.RpcRemoteLatch;
 import com.lorabit.rpc.router.IORouter;
@@ -83,9 +85,15 @@ public class ClientProxyCtx<T> implements MethodInterceptor {
       session.setLatch(latch);
       session.write(packet);
       ret = latch.getResult();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       router.fail(url);
-      throw e;
+      if(e instanceof RpcTimeoutException){
+        throw e;
+      }
+      if(e instanceof RpcNoMoreConnException){
+        throw e;
+      }
+      throw  e;
     } finally {
       pool.releaseIOSession(session);
     }

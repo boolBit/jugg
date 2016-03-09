@@ -40,7 +40,7 @@ public class RpcRemoteLatch {
 
   public Object getResult() throws Throwable {
     try {
-      System.out.println(timeout);
+//      System.out.println(timeout);
       if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
         throw new RpcTimeoutException();
       }
