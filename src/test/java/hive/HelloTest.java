@@ -20,4 +20,11 @@ public class HelloTest extends BaseSpringContextTests{
   public void test() {
     System.out.println(hiveJdbcTemplate.queryForList("show tables"));
   }
+
+
+
+  @Test
+  public void testRemovePt(){
+    hiveJdbcTemplate.execute("alter table user_action drop partition(pt=200)");
+  }
 }

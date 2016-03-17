@@ -1,5 +1,11 @@
 package com.lorabit.util;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -42,7 +48,10 @@ public class CustomHttpHelper {
 
   private static final int DEFAULT_TIMEOUT = 3000;
 
+  public static final ObjectMapper mapper = new ObjectMapper();
+
   static {
+    mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
     RequestConfig defaultRequestConfig = RequestConfig.custom()
         .setSocketTimeout(DEFAULT_TIMEOUT)
         .setConnectTimeout(DEFAULT_TIMEOUT)
@@ -119,7 +128,7 @@ public class CustomHttpHelper {
     }
     HttpEntity reqEntity = reqBuilder.build();
     httppost.setEntity(reqEntity);
-    httppost.setHeader("Cookie", "__utma=74400135.356992072.1444356525.1456993855.1456998523.272; __utmz=74400135.1456380688.263.96.utmcsr=operate.duitang.com|utmccn=(referral)|utmcmd=referral|utmcct=/buy/; csrftoken=e81cca5ac9f2a97aa5806e69e3ca2c53; sgm=usedtags%3D%25u5BB6%25u5C45%253B%25u8BBE%25u8BA1%253B%25u63D2%25u753B%253B%25u7535%25u5F71%253B%25u65C5%25u884C%253B%25u624B%25u5DE5%253B%25u5973%25u88C5%253B%25u7537%25u88C5%253B%25u914D%25u9970%253B%25u7F8E%25u98DF%253B%25u6444%25u5F71%253B%25u827A%25u672F%253B%257C%253B%25u5C01%25u9762%253B%25u52A8%25u6F2B%253B%25u6000%25u65E7%253B%25u8857%25u62CD%253B%25u5C0F%25u5B69%253B%25u5BA0%25u7269%253B%25u690D%25u7269%253B%25u4EBA%25u7269; username=matchDay; _auth_user_id=10249029; sessionid=55642342-ab9c-4014-82cf-b040e4f9f909; __utmc=74400135; js=1; __utmb=74400135.6.10.1456998523; __utmt=1");
+    httppost.setHeader("Cookie", "__utma=74400135.356992072.1444356525.1457512233.1457791779.276; __utmz=74400135.1457512233.275.98.utmcsr=operate.duitang.com|utmccn=(referral)|utmcmd=referral|utmcct=/buy/; csrftoken=e81cca5ac9f2a97aa5806e69e3ca2c53; sgm=usedtags%3D%25u5BB6%25u5C45%253B%25u8BBE%25u8BA1%253B%25u63D2%25u753B%253B%25u7535%25u5F71%253B%25u65C5%25u884C%253B%25u624B%25u5DE5%253B%25u5973%25u88C5%253B%25u7537%25u88C5%253B%25u914D%25u9970%253B%25u7F8E%25u98DF%253B%25u6444%25u5F71%253B%25u827A%25u672F%253B%257C%253B%25u5C01%25u9762%253B%25u52A8%25u6F2B%253B%25u6000%25u65E7%253B%25u8857%25u62CD%253B%25u5C0F%25u5B69%253B%25u5BA0%25u7269%253B%25u690D%25u7269%253B%25u4EBA%25u7269; sessionid=215c308a-27c1-444a-a220-9f59de0eebec; username=matchDay; _auth_user_id=10249029; js=1; __utmb=74400135.1.10.1457791779; __utmc=74400135; __utmt=1");
     return httpClient.execute(httppost, new basicHandler<String>() {
       @Override
       String handler(HttpResponse response) throws IOException {
@@ -131,27 +140,31 @@ public class CustomHttpHelper {
   }
 
   public static void main(String[] args) throws IOException {
-    Map<String, File> m = new HashMap();
-    m.put("img", new File("/home/hellokitty/图片/2016-03-03 15:25:58屏幕截图.png"));
-    String url = postImg(m);
-    System.out.println(url);
-
-    Map<String, List<List<String>>> imgUrl = new HashMap<>();
-
-    File file =new File("/home/hellokitty/桌面/test");
-    File[] subFiles = file.listFiles();
-    for(File subFile : subFiles){
-      if(subFile.isDirectory()){
-        if(subFile.getName().equals("主图")){
-
+    Map<String, File> postImgFile = new HashMap();
+    List<String> displayHeaders = Lists.newArrayList("商品名称", "主图", "详情图");
+    List<String> headers = Lists.newArrayList("name", "主图", "详情图");
+    List<Object> contents = new ArrayList<>();
+    File img = new File("/home/hellokitty/桌面/测试");
+    for (File invDir : img.listFiles()) {
+      Map<String, Object> oneinv = new HashMap();
+      oneinv.put("name", invDir.getName());
+      for (File picDir : invDir.listFiles()) {
+        if ("主图".equals(picDir.getName()) || "详情图".equals(picDir.getName())) {
+          List<String> urls = Lists.newArrayList();
+          for (File pic : picDir.listFiles()) {
+            postImgFile.put("img", pic);
+            String url = postImg(postImgFile);
+            urls.add(url);
+          }
+          oneinv.put(picDir.getName(), Joiner.on(",").join(urls));
         }
       }
+      contents.add(oneinv);
     }
-
-
-//    FileUtils.listFiles(new File(""),DirectoryFileFilter.DIRECTORY)
-//
-//    IOFileFilter.
+    ExcelMaker.from(contents, headers)
+        .displayHeaders(displayHeaders)
+        .resultType(ExcelMaker.ExcelFileType.XLS)
+        .create("/home/hellokitty/桌面/imgs.xls");
 
   }
 
